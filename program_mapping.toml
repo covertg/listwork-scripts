@@ -1,0 +1,83 @@
+# This file contains a mapping from the Colllege's nomenclature to our own acronyms in
+# Broadstripes. The left-hand side is the boss' terminology (after a bit of cleanup,
+# e.g. removing the word "PROGRAM"). The right-hand side is a combination of program and
+# degree type. They are somewhat organized by category, but the order in this file
+# doesn't matter for the functioning of the script parse_employer_bu.py.
+
+# Format:
+# "ORIGINAL VALUE" = ["PROGRAM", "DEGREE TYPE"]
+
+"CHEM PHD" = ["CHEM", "PhD"]
+"GRCHEMPHD" = ["CHEM", "PhD"]
+"GREARSMS" = ["EARS", "MS"]
+"EARS MS" = ["EARS", "MS"]
+"EARS PHD" = ["EARS", "PhD"]
+"GREARSPHD" = ["EARS", "PhD"]
+"EEES PHD" = ["EEES", "PhD"]
+"GREEESPHD" = ["EEES", "PhD"]
+"MATH PHD" = ["MATH", "PhD"]
+"GRMATHPHD" = ["MATH", "PhD"]
+"PHYS PHD" = ["PHYS", "PhD"]
+"GRPHYSPHD" = ["PHYS", "PhD"]
+"QBS PHD" = ["QBS", "PhD"]
+"GRQBSPHD" = ["QBS", "PhD"]
+
+# Humanities
+"GRSOPRMFA" = ["MUS", "MFA"]
+"SOPR MFA" = ["MUS", "MFA"]  # Perhaps SOPR is school of performing arts?
+"GRCOLTAM" = ["COLT", "AM"]
+"COLT AM" = ["COLT", "AM"]
+
+# Engineering and CS
+"COSC PHD" = ["COSC", "PhD"]
+"GRCOSCPHD" = ["COSC", "PhD"]
+"GRCOSCMS" = ["COSC", "MS"]
+"THENGMENG" = ["ENGG", "MENG"]
+"THENGMEM" = ["ENGG", "MEM"]
+"TH-MEM/MBA" = ["ENGG", "MEM/MBA"]
+"THENGMS" = ["ENGS", "MS"]
+"ENGS MS" = ["ENGS", "MS"]
+"ENGS PHD" = ["ENGS", "PhD"]
+"THENGPHD" = ["ENGS", "PhD"]
+
+# Biology
+"MCB PHD" = ["MCB", "PhD"]
+"GRMCBPHD" = ["MCB", "PhD"]
+"BCB PHD" = ["BCB", "PhD"]
+"GRBCBPHD" = ["BCB", "PhD"]
+"BIOL PHD" = ["BIOL SCI", "PhD"]
+"GRBIOLPHD" = ["BIOL SCI", "PhD"]
+"CANB PHD" = ["CANB", "PhD"]
+"GRCANBPHD" = ["CANB", "PhD"]
+"MICR PHD" = ["MICR", "PhD"]
+"GRMICRPHD" = ["MICR", "PhD"]
+"MSB PHD" = ["MSB", "PhD"]
+"GRMSBPHD" = ["MSB", "PhD"]
+
+# Neuro/Psych
+"PBS PHD" = ["PBS", "PhD"]
+"GRPBSPHD" = ["PBS", "PhD"]
+"COGN PHD" = ["COGN", "PhD"]
+"GRCOGNPHD" = ["COGN", "PhD"]
+"IND PHD" = ["IND", "PhD"]
+"GRINDPHD" = ["IND", "PhD"]
+
+# Epi and public health
+"GREPIMS" = ["EPI", "MS"]      # Epidemiology
+"GRHDSMS" = ["HDS", "MS"]      # Health and Data Sciences
+"TDI PHD" = ["TDI", "PhD"]
+"ECPHD" = ["TDI", "PhD"]
+"TDIMS" = ["TDI", "MS"]
+"ECMPH" = ["TDI", "MPH"]
+"ECMPH HYBRID" = ["TDI", "MPH HYBRID"]
+
+# Med
+"MD" = ["GEISEL", "MD"]
+"DM-MD/MBA" = ["GEISEL", "MD/MBA"]
+"GR-MD/PHD" = ["GEISEL", "MD/PhD"]
+
+# Business
+"TUCKMBA" = ["TUCK", "MBA"]
+"TU-MBA" = ["TUCK", "MBA"]
+"Joint with TU" = ["TUCK", "MBA Joint"] # Unclear exactly what the joint aspect is; this covers one worker in fall 2024
+"GR-MPH/MBA" = ["TUCK", "MPH/MBA"]
