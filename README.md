@@ -64,3 +64,24 @@ python parse_employer_bu.py --infile="data/GOLD Membership (Fall 2024) - supplem
 ```bash
 python parse_employer_bu.py --infile="data/GOLD Membership (Fall 2024) 2024.10.15.xlsx" --program_col="PROGRAM/FIELD OF STUDY" --lfm_cols LAST FIRST MIDDLE
 ```
+
+## `check_skipped_emports.py`
+
+Note: this script is OK but could miss some cases. E.g. if someone entirely changes their name then it may not detect that. To be more comprehensive we could try to cross-reference by department and year.
+
+Example usage:
+
+```bash
+python check_skipped_imports.py --all_broadstripes 'data/Basic contact info.csv' --skipped_entries data/data-import-SKIPS-d88d986d-19c5-4217-9a16-f78cf79540b1.csv
+```
+
+```bash
+Loaded all Broadstripes entries from 'data/Basic contact info.csv'
+n. rows:         2179
+Loaded skipped additions from 'data/data-import-SKIPS-d88d986d-19c5-4217-9a16-f78cf79540b1.csv'
+n. rows:         20
+
+Found 2 potential matches
+  name match_type  similarity       existing_matches
+0 redacted fuzzy   0.918919         [redacted]
+1 redacted fuzzy   0.826087         [redacted]
