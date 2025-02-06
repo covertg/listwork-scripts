@@ -1,15 +1,15 @@
 try:
     import pandas as pd
-except ImportError:
-    print(
-        "This script requires the python library pandas. Please install it to your environment"
-    )
+except ImportError as e:
+    raise ImportError(
+        "This script requires the python library pandas. Please install it to your environment."
+    ) from e
 try:
     import openpyxl  # noqa: F401
-except ImportError:
-    print(
-        "This script requires the python library openpyxl. Please install it to your environment"
-    )
+except ImportError as e:
+    raise ImportError(
+        "This script requires the python library openpyxl. Please install it to your environment."
+    ) from e
 import argparse
 import datetime
 from pathlib import Path
@@ -20,7 +20,7 @@ import tomllib
 pd.options.mode.copy_on_write = True
 
 
-def load_list(infile: Path, program_col: str, fullname_col: str) -> pd.DataFrame:
+def load_list(infile: Path) -> pd.DataFrame:
     """Load list and check that the expected columns are there"""
     if not infile.exists():
         raise FileNotFoundError(f"Input file '{infile}' does not exist")
@@ -104,9 +104,9 @@ def convert_program_mapping(
             f"Original data for program/field of study (column '{program_col}') has null values"
         )
     # Initial cleanup, sometimes the Dartmouth data has a redundant "PROGRAM" text that we don't need
-    prog_cleaned = df[program_col].str.replace(" PROGRAM", "", case=False)
+    df[program_col] = df[program_col].str.replace(" PROGRAM", "", case=False)
     # Check if there are any new programs that we haven't seen before
-    new_programs = set(prog_cleaned) - set(program_mapping.keys())
+    new_programs = set(df[program_col]) - set(program_mapping.keys())
     if new_programs:
         print(
             "Error: This file has new entries in program/field of study that we haven't seen before. This often happens with each new BU list. Please interpret the new entries and add them to the program mapping .toml file. Unrecognized entries:"
@@ -125,7 +125,7 @@ def convert_program_mapping(
     return df
 
 
-def parse_names(df: pd.DataFrame, fullname_col: str) -> pd.DataFrame:
+def parse_fullnames(df: pd.DataFrame, fullname_col: str) -> pd.DataFrame:
     """Split names in the "fullname" format to separate last, first, and middle columns.
 
     In some BU lists, Dartmouth provides names only in the format of:
@@ -170,12 +170,22 @@ def parse_names(df: pd.DataFrame, fullname_col: str) -> pd.DataFrame:
     nonmatches = fullnames_reconstructed != (df[fullname_col])
     if nonmatches.sum() != 0:
         print(
-            "Error: We received some name(s) in an unexpected format. Please check the following entries::"
+            "Error: We received some name(s) in an unexpected format. Please check the following entries:"
         )
         pprint(df.loc[nonmatches, fullname_col])
         raise ValueError("Full name data in unexpected format")
     print("\nParsed full name -> First Last Middle.")
     return df
+
+
+def check_names_lfm(df: pd.DataFrame, lastc: str, firstc: str, middlec: str):
+    """Simple check that we have no missing data for Last and First names."""
+    if df[lastc].isna().any():
+        raise ValueError(f"Missing data in Last name column '{lastc}'")
+    if df[firstc].isna().any():
+        raise ValueError(f"Missing data in First name column '{firstc}'")
+    if df[middlec].isna().all():
+        print(f"\nWarning: 100% missing data in Middle name column '{middlec}'")
 
 
 def str_combine(*e) -> str:
@@ -216,12 +226,12 @@ def make_address_combined(
 def parse_dartmouth_bu(
     infile: Path,
     program_col: str,
-    fullname_col: str,
+    name_cols: list[str],
     program_mapping_file: Path,
     outfile: Path | None,
     write=True,
 ):
-    df = load_list(infile=infile, program_col=program_col, fullname_col=fullname_col)
+    df = load_list(infile=infile)
     # Parse received date and make BU list column
     list_name = get_list_identifier(infile)
     df[list_name] = True
@@ -229,8 +239,16 @@ def parse_dartmouth_bu(
     df = convert_program_mapping(
         df=df, program_col=program_col, program_mapping_file=program_mapping_file
     )
-    # Deal with names (convert fullname column to three columns)
-    df = parse_names(df, fullname_col)
+    # Check and parse names
+    if len(name_cols) == 1:
+        # Convert fullname column to three columns, Last First Middle
+        df = parse_fullnames(df, name_cols[0])
+    elif len(name_cols) == 3:
+        check_names_lfm(df, *name_cols)
+    else:
+        raise ValueError(
+            f"Invalid number of name columns provided for name_cols '{name_cols}'. Expected 1 (fullname) or 3 (LFM)."
+        )
     # Create combined address column
     df = make_address_combined(df)
 
@@ -240,7 +258,7 @@ def parse_dartmouth_bu(
     if write:
         if not outfile:
             fname = f"{list_name} made {datetime.datetime.now().strftime('%Y.%m.%d_%H.%M.%S')}.csv"
-            outfile = Path(fname)
+            outfile = Path("data") / fname
         df.to_csv(outfile, index=False)
         print(f"Wrote to file '{outfile}'")
     return df
@@ -248,7 +266,7 @@ def parse_dartmouth_bu(
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="Parse a Dartmouth BU list into a CSV file"
+        description="Parse a Dartmouth BU list into a CSV file, cleaned and formatted to use with Broadstripes."
     )
     parser.add_argument(
         "--infile",
@@ -265,8 +283,14 @@ if __name__ == "__main__":
     parser.add_argument(
         "--fullname_col",
         type=str,
-        help="Name of the column containing the full name",
-        required=True,
+        help="Name of the column containing the full name. Only fullname_Col or lfm_cols can be specified.",
+        required=False,
+    )
+    parser.add_argument(
+        "--lfm_cols",
+        nargs=3,
+        help="Name of the columns containing the last name, first name, and middle initial, separated by spaces. Only lfm_cols or fullname_col can be specified.",
+        required=False,
     )
     parser.add_argument(
         "--program_mapping_file",
@@ -278,17 +302,24 @@ if __name__ == "__main__":
     parser.add_argument(
         "--outfile",
         type=Path,
-        help="Path to the output file (.csv). Optional. By default, the output file will be in the working directory and have an informative name with a timestamp.",
+        help="Path to the output file (.csv). Optional. By default, the output file will be in the data/ directory and have an informative name with a timestamp.",
         default=None,
         required=False,
     )
     args = parser.parse_args()
 
+    # Error if lfm_cols and fullname_col are both or neither specified
+    if (args.fullname_col and args.lfm_cols) or not (args.fullname_col or args.lfm_cols):
+        raise ValueError(
+            "Please specific exactly one of 'fullname_col' or 'lfm_cols' so we know which column(s) to use for names."
+        )
+    name_cols = [args.fullname_col] if args.fullname_col else args.lfm_cols
+
     _ = parse_dartmouth_bu(
-        args.infile,
-        args.program_col,
-        args.fullname_col,
-        args.program_mapping_file,
-        args.outfile,
+        infile=args.infile,
+        program_col=args.program_col,
+        name_cols=name_cols,
+        program_mapping_file=args.program_mapping_file,
+        outfile=args.outfile,
         write=True,
     )
