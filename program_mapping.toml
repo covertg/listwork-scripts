@@ -51,6 +51,7 @@
 "GRCANBPHD" = ["CANB", "PhD"]
 "MICR PHD" = ["MICR", "PhD"]
 "GRMICRPHD" = ["MICR", "PhD"]
+"GRMICRMS" = ["MICR", "MS"]
 "MSB PHD" = ["MSB", "PhD"]
 "GRMSBPHD" = ["MSB", "PhD"]
 
@@ -81,3 +82,4 @@
 "TU-MBA" = ["TUCK", "MBA"]
 "Joint with TU" = ["TUCK", "MBA Joint"] # Unclear exactly what the joint aspect is; this covers one worker in fall 2024
 "GR-MPH/MBA" = ["TUCK", "MPH/MBA"]
+"HCHCDSMS" = ["TUCK", "MHCDS"]  # Master of Health Care Delivery Science, Tuck/Geisel
