@@ -34,11 +34,13 @@
 "GRCOSCMS" = ["COSC", "MS"]
 "THENGMENG" = ["ENGG", "MENG"]
 "THENGMEM" = ["ENGG", "MEM"]
+"MEM" = ["ENGG", "MEM"]
 "TH-MEM/MBA" = ["ENGG", "MEM/MBA"]
 "THENGMS" = ["ENGS", "MS"]
 "ENGS MS" = ["ENGS", "MS"]
 "ENGS PHD" = ["ENGS", "PhD"]
 "THENGPHD" = ["ENGS", "PhD"]
+"BE" = ["ENGS", "BE"]  # Bachelor of engineering, ABET-accredited
 
 # Biology
 "MCB PHD" = ["MCB", "PhD"]
@@ -74,12 +76,15 @@
 
 # Med
 "MD" = ["GEISEL", "MD"]
+"Medicine" = ["GEISEL", "MD"]
 "DM-MD/MBA" = ["GEISEL", "MD/MBA"]
 "GR-MD/PHD" = ["GEISEL", "MD/PhD"]
 
 # Business
 "TUCKMBA" = ["TUCK", "MBA"]
 "TU-MBA" = ["TUCK", "MBA"]
-"Joint with TU" = ["TUCK", "MBA Joint"] # Unclear exactly what the joint aspect is; this covers one worker in fall 2024
+"MBA" = ["TUCK", "MBA"]
+"Joint with TU" = ["TUCK", "MBA Joint"] # Unclear exactly what the joint aspect is; this covered one worker in fall 2024
 "GR-MPH/MBA" = ["TUCK", "MPH/MBA"]
 "HCHCDSMS" = ["TUCK", "MHCDS"]  # Master of Health Care Delivery Science, Tuck/Geisel
+"TUHCHCDSMS" = ["TUCK", "MHCDS"]
