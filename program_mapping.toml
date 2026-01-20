@@ -25,14 +25,18 @@
 # Humanities
 "GRSOPRMFA" = ["MUS", "MFA"]
 "SOPR MFA" = ["MUS", "MFA"]  # Perhaps SOPR is school of performing arts?
-"GRCOLTAM" = ["COLT", "AM"]
-"COLT AM" = ["COLT", "AM"]
+"GRCOLTAM" = ["COLT", "MA"]  # "AM" is the latin version of "MA" so let's use MA
+"COLT AM" = ["COLT", "MA"]
+"GRCOMPLIT" = ["COLT", "MA"] # Think this is also a master's degree but not certain; WI26
 
 # Engineering and CS
 "COSC PHD" = ["COSC", "PhD"]
 "GRCOSCPHD" = ["COSC", "PhD"]
+"MSCS" = ["COSC", "MS"]
 "GRCOSCMS" = ["COSC", "MS"]
 "THENGMENG" = ["ENGG", "MENG"]
+"THMEng" = ["ENGG", "MENG"]
+"THMEM" = ["ENGG", "MEM"]
 "THENGMEM" = ["ENGG", "MEM"]
 "MEM" = ["ENGG", "MEM"]
 "TH-MEM/MBA" = ["ENGG", "MEM/MBA"]

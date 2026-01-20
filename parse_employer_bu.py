@@ -201,11 +201,11 @@ def str_combine(*e) -> str:
 
 def make_address_combined(
     df,
-    l1c="ADDRESS_LINE1",
-    l2c="ADDRESS_LINE2",
-    cityc="TOWN/CITY",
-    statec="ST",
-    zipc="ZIP",
+    l1c: str,
+    l2c: str,
+    cityc: str,
+    statec: str,
+    zipc: str,
 ):
     addrs = []
     for _, row in df.iterrows():
@@ -223,13 +223,18 @@ def make_address_combined(
     return df
 
 
+# Default address column names used by make_address_combined
+DEFAULT_ADDRESS_COLS = ("ADDRESS_LINE1", "ADDRESS_LINE2", "TOWN/CITY", "ST", "ZIP")
+
+
 def parse_dartmouth_bu(
     infile: Path,
     program_col: str,
     name_cols: list[str],
     program_mapping_file: Path,
     outfile: Path | None,
-    write=True,
+    address_cols: tuple[str, str, str, str, str],
+    write: bool = True,
 ):
     df = load_list(infile=infile)
     # Parse received date and make BU list column
@@ -250,7 +255,7 @@ def parse_dartmouth_bu(
             f"Invalid number of name columns provided for name_cols '{name_cols}'. Expected 1 (fullname) or 3 (LFM)."
         )
     # Create combined address column
-    df = make_address_combined(df)
+    df = make_address_combined(df, *address_cols)
 
     print(
         "\nFinished parsing this employer BU list. Please check the output for errors before using it."
@@ -306,6 +311,14 @@ if __name__ == "__main__":
         default=None,
         required=False,
     )
+    parser.add_argument(
+        "--address_cols",
+        nargs=5,
+        metavar=("LINE1", "LINE2", "CITY", "STATE", "ZIP"),
+        help="Names of the address columns: line1, line2, city, state, and zip (in that order).",
+        default=list(DEFAULT_ADDRESS_COLS),
+        required=False,
+    )
     args = parser.parse_args()
 
     # Error if lfm_cols and fullname_col are both or neither specified
@@ -321,5 +334,6 @@ if __name__ == "__main__":
         name_cols=name_cols,
         program_mapping_file=args.program_mapping_file,
         outfile=args.outfile,
+        address_cols=tuple(args.address_cols),
         write=True,
     )
