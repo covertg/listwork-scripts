@@ -1,0 +1,6 @@
+# Development / test dependencies.
+# Runtime dependencies for the scripts themselves are documented in README.md
+# (pandas, openpyxl, python>=3.11).
+pytest>=7.0
+pandas
+openpyxl

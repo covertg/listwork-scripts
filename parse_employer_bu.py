@@ -17,8 +17,6 @@ from pprint import pprint
 import re
 import tomllib
 
-pd.options.mode.copy_on_write = True
-
 
 def load_list(infile: Path) -> pd.DataFrame:
     """Load list and check that the expected columns are there"""
@@ -200,13 +198,13 @@ def str_combine(*e) -> str:
 
 
 def make_address_combined(
-    df,
+    df: pd.DataFrame,
     l1c: str,
     l2c: str,
     cityc: str,
     statec: str,
     zipc: str,
-):
+) -> pd.DataFrame:
     addrs = []
     for _, row in df.iterrows():
         line1, line2, town, st, zip = row.loc[[l1c, l2c, cityc, statec, zipc]]
@@ -235,38 +233,43 @@ def parse_dartmouth_bu(
     outfile: Path | None,
     address_cols: tuple[str, str, str, str, str],
     write: bool = True,
-):
-    df = load_list(infile=infile)
-    # Parse received date and make BU list column
-    list_name = get_list_identifier(infile)
-    df[list_name] = True
-    # Parse program mapping
-    df = convert_program_mapping(
-        df=df, program_col=program_col, program_mapping_file=program_mapping_file
-    )
-    # Check and parse names
-    if len(name_cols) == 1:
-        # Convert fullname column to three columns, Last First Middle
-        df = parse_fullnames(df, name_cols[0])
-    elif len(name_cols) == 3:
-        check_names_lfm(df, *name_cols)
-    else:
-        raise ValueError(
-            f"Invalid number of name columns provided for name_cols '{name_cols}'. Expected 1 (fullname) or 3 (LFM)."
-        )
-    # Create combined address column
-    df = make_address_combined(df, *address_cols)
+) -> pd.DataFrame:
+    with pd.option_context("mode.copy_on_write", True):
+        df = load_list(infile=infile)
 
-    print(
-        "\nFinished parsing this employer BU list. Please check the output for errors before using it."
-    )
-    if write:
-        if not outfile:
-            fname = f"{list_name} made {datetime.datetime.now().strftime('%Y.%m.%d_%H.%M.%S')}.csv"
-            outfile = Path("data") / fname
-        df.to_csv(outfile, index=False)
-        print(f"Wrote to file '{outfile}'")
-    return df
+        # Parse received date and make BU list column
+        list_name = get_list_identifier(infile)
+        df[list_name] = True
+
+        # Parse program mapping
+        df = convert_program_mapping(
+            df=df, program_col=program_col, program_mapping_file=program_mapping_file
+        )
+
+        # Check and parse names
+        if len(name_cols) == 1:
+            # Convert fullname column to three columns, Last First Middle
+            df = parse_fullnames(df, name_cols[0])
+        elif len(name_cols) == 3:
+            check_names_lfm(df, *name_cols)
+        else:
+            raise ValueError(
+                f"Invalid number of name columns provided for name_cols '{name_cols}'. Expected 1 (fullname) or 3 (LFM)."
+            )
+
+        # Create combined address column
+        df = make_address_combined(df, *address_cols)
+
+        print(
+            "\nFinished parsing this employer BU list. Please check the output for errors before using it."
+        )
+        if write:
+            if not outfile:
+                fname = f"{list_name} made {datetime.datetime.now().strftime('%Y.%m.%d_%H.%M.%S')}.csv"
+                outfile = Path("data") / fname
+            df.to_csv(outfile, index=False)
+            print(f"Wrote to file '{outfile}'")
+        return df
 
 
 if __name__ == "__main__":
@@ -274,37 +277,39 @@ if __name__ == "__main__":
         description="Parse a Dartmouth BU list into a CSV file, cleaned and formatted to use with Broadstripes."
     )
     parser.add_argument(
+        "-i",
         "--infile",
         type=Path,
-        help="Path to the input file (.xlsx from employer)",
+        help="Path to the input file (.xlsx from employer). The filename must include the date that we received it in the format YYYY.MM.DD",
         required=True,
     )
     parser.add_argument(
         "--program_col",
         type=str,
-        help="Name of the column containing the program/field of study",
+        help="Name of the column containing the program/field of study. This column name seems to vary pretty frequently by term, so you will need to identify it by peeking at the input file.",
         required=True,
     )
     parser.add_argument(
         "--fullname_col",
         type=str,
-        help="Name of the column containing the full name. Only fullname_Col or lfm_cols can be specified.",
+        help="Name of the column containing the full name. Only fullname_Col or lfm_cols can be specified. All of recent BU lists from Dartmouth have used a unified column for the full name, so this is probably the argument you want for a new BU list.",
         required=False,
     )
     parser.add_argument(
         "--lfm_cols",
         nargs=3,
-        help="Name of the columns containing the last name, first name, and middle initial, separated by spaces. Only lfm_cols or fullname_col can be specified.",
+        help="(Legacy) Name of the columns containing the last name, first name, and middle initial, separated by spaces. Only lfm_cols or fullname_col can be specified. Dartmouth's original BU lists separated names into columns, but more recent lists have all used a unified column, so you probably don't want this argument for a new BU list.",
         required=False,
     )
     parser.add_argument(
         "--program_mapping_file",
         type=Path,
-        help="Path to the program mapping file (.toml from us)",
+        help="Path to the program mapping file (.toml that we develop).",
         default="program_mapping.toml",
         required=False,
     )
     parser.add_argument(
+        "-o",
         "--outfile",
         type=Path,
         help="Path to the output file (.csv). Optional. By default, the output file will be in the data/ directory and have an informative name with a timestamp.",
@@ -322,7 +327,9 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # Error if lfm_cols and fullname_col are both or neither specified
-    if (args.fullname_col and args.lfm_cols) or not (args.fullname_col or args.lfm_cols):
+    if (args.fullname_col and args.lfm_cols) or not (
+        args.fullname_col or args.lfm_cols
+    ):
         raise ValueError(
             "Please specific exactly one of 'fullname_col' or 'lfm_cols' so we know which column(s) to use for names."
         )

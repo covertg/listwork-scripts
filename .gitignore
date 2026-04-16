@@ -1,6 +1,10 @@
 # Our ignores
 *.csv
-*.xlsx
+data/*.xlsx
+# Any xlsx files dropped into the parse_employer_bu real-fixtures dir are gitignored
+tests/parse_employer_bu/fixtures/real/*
+!tests/parse_employer_bu/fixtures/real/.gitkeep
+!tests/parse_employer_bu/fixtures/real/README.md
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -173,3 +177,5 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+.DS_Store

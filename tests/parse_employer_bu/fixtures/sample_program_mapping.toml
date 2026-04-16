@@ -1,0 +1,14 @@
+# Sample program mapping for the parse_employer_bu test suite.
+# Mirrors the production format: "ORIGINAL VALUE" = ["PROGRAM", "DEGREE"].
+# All values here are fake / test-only. The keys are the post-strip forms of
+# the PROGRAM values in sample_list.xlsx (the script strips " PROGRAM" suffixes
+# case-insensitively before mapping).
+
+"Computer Science" = ["FakeU CS", "PhD"]
+"Biology" = ["FakeU BIO", "PhD"]
+"Chemistry" = ["FakeU CHEM", "PhD"]
+"Physics" = ["FakeU PHYS", "MS"]
+"Mathematics" = ["FakeU MATH", "PhD"]
+"Engineering" = ["FakeU ENG", "MS"]
+"Music" = ["FakeU MUS", "MFA"]
+"History" = ["FakeU HIST", "MA"]
