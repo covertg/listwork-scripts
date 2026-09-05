@@ -2,25 +2,34 @@
 # Broadstripes. The left-hand side is the boss' terminology (after a bit of cleanup,
 # e.g. removing the word "PROGRAM"). The right-hand side is a combination of program and
 # degree type. They are somewhat organized by category, but the order in this file
-# doesn't matter for the functioning of the script parse_employer_bu.py.
+# doesn't matter for the functioning of the script parse_employer_bu.py. Newlines also
+# do not matter.
 
 # Format:
 # "ORIGINAL VALUE" = ["PROGRAM", "DEGREE TYPE"]
 
 "CHEM PHD" = ["CHEM", "PhD"]
 "GRCHEMPHD" = ["CHEM", "PhD"]
+
+"MATH PHD" = ["MATH", "PhD"]
+"GRMATHPHD" = ["MATH", "PhD"]
+
+"PHYS PHD" = ["PHYS", "PhD"]
+"GRPHYSPHD" = ["PHYS", "PhD"]
+
+"QBS PHD" = ["QBS", "PhD"]
+"GRQBSPHD" = ["QBS", "PhD"]
+
+# Ecology, evolution, environment
+"EEES PHD" = ["EEES", "PhD"]
+"GREEESPHD" = ["EEES", "PhD"]
+"GREEESMS" = ["EEES", "MS"]
+
+# Earth sciences
 "GREARSMS" = ["EARS", "MS"]
 "EARS MS" = ["EARS", "MS"]
 "EARS PHD" = ["EARS", "PhD"]
 "GREARSPHD" = ["EARS", "PhD"]
-"EEES PHD" = ["EEES", "PhD"]
-"GREEESPHD" = ["EEES", "PhD"]
-"MATH PHD" = ["MATH", "PhD"]
-"GRMATHPHD" = ["MATH", "PhD"]
-"PHYS PHD" = ["PHYS", "PhD"]
-"GRPHYSPHD" = ["PHYS", "PhD"]
-"QBS PHD" = ["QBS", "PhD"]
-"GRQBSPHD" = ["QBS", "PhD"]
 
 # Humanities
 "GRSOPRMFA" = ["MUS", "MFA"]
@@ -29,7 +38,7 @@
 "COLT AM" = ["COLT", "MA"]
 "GRCOMPLIT" = ["COLT", "MA"] # Think this is also a master's degree but not certain; WI26
 
-# Engineering and CS
+# Thayer (Engineering and CS)
 "COSC PHD" = ["COSC", "PhD"]
 "GRCOSCPHD" = ["COSC", "PhD"]
 "MSCS" = ["COSC", "MS"]
@@ -60,6 +69,7 @@
 "GRMICRMS" = ["MICR", "MS"]
 "MSB PHD" = ["MSB", "PhD"]
 "GRMSBPHD" = ["MSB", "PhD"]
+"GRMSBMS" = ["MSB", "MS"]
 
 # Neuro/Psych
 "PBS PHD" = ["PBS", "PhD"]
@@ -69,26 +79,35 @@
 "IND PHD" = ["IND", "PhD"]
 "GRINDPHD" = ["IND", "PhD"]
 
-# Epi and public health
-"GREPIMS" = ["EPI", "MS"]      # Epidemiology
-"GRHDSMS" = ["HDS", "MS"]      # Health and Data Sciences
+# TDI (The Dartmouth Institute, formally under Geisel): public health, epidemiology, etc.
 "TDI PHD" = ["TDI", "PhD"]
-"ECPHD" = ["TDI", "PhD"]
 "TDIMS" = ["TDI", "MS"]
-"ECMPH" = ["TDI", "MPH"]
-"ECMPH HYBRID" = ["TDI", "MPH HYBRID"]
+"ECPHD" = ["PH", "PhD"]             # Public Health, once upon a time was "HPCP"; I don't actually know what the "EC" stands for (SP 26)
+"ECMPH" = ["PH", "MPH"]             # Master of Public Health
+"PHPHR" = ["PH", "MPH"]             # Master of Public Health (I believe this to be the same as above; OLR confirmed it to be the residental MPH in SP 26)
+"ECMPH HYBRID" = ["PH", "MPH HYBRID"] # same as above but remote/hybrid
+"GREPIMS" = ["EPI", "MS"]           # Epidemiology
+"HEHDS" = ["HDS", "MS"]             # Health Data Science
+"GRHDSMS" = ["HDS", "MS"]
+"HEHCR" = ["HCR", "MS"]             # Health Care Research
 
-# Med
-"MD" = ["GEISEL", "MD"]
-"Medicine" = ["GEISEL", "MD"]
-"DM-MD/MBA" = ["GEISEL", "MD/MBA"]
-"GR-MD/PHD" = ["GEISEL", "MD/PhD"]
+# Geisel medical
+"MD" = ["MED", "MD"]
+"Medicine" = ["MED", "MD"]
+"GR-MD/PHD" = ["MED", "MD/PhD"]
+
+# Joint Geisel/Tuck
+"DM-MD/MBA" = ["MED", "MD/MBA"]
+"HCHCDSMS" = ["GEISEL", "MHCDS"]    # Master of Health Care Delivery Science, Tuck/Geisel
+"TUHCHCDSMS" = ["TUCK", "MHCDS"]
+"DM-MPH/MBA" = ["PH", "MPH/MBA"]    # Master of Public Health/MBA
+"GR-MPH/MBA" = ["PH", "MPH/MBA"]
 
 # Business
 "TUCKMBA" = ["TUCK", "MBA"]
 "TU-MBA" = ["TUCK", "MBA"]
 "MBA" = ["TUCK", "MBA"]
 "Joint with TU" = ["TUCK", "MBA Joint"] # Unclear exactly what the joint aspect is; this covered one worker in fall 2024
-"GR-MPH/MBA" = ["TUCK", "MPH/MBA"]
-"HCHCDSMS" = ["TUCK", "MHCDS"]  # Master of Health Care Delivery Science, Tuck/Geisel
-"TUHCHCDSMS" = ["TUCK", "MHCDS"]
+
+# Miscellaneous
+"GRETRNMET" = ["ENERGY", "MET"]  # Master of Energy Transition

@@ -284,6 +284,14 @@ if __name__ == "__main__":
         required=True,
     )
     parser.add_argument(
+        "-o",
+        "--outfile",
+        type=Path,
+        help="Path to the output file (.csv). Optional. By default, the output file will be in the data/ directory and have an informative name with a timestamp.",
+        default=None,
+        required=False,
+    )
+    parser.add_argument(
         "--program_col",
         type=str,
         help="Name of the column containing the program/field of study. This column name seems to vary pretty frequently by term, so you will need to identify it by peeking at the input file.",
@@ -304,16 +312,8 @@ if __name__ == "__main__":
     parser.add_argument(
         "--program_mapping_file",
         type=Path,
-        help="Path to the program mapping file (.toml that we develop).",
+        help="Path to the program mapping file (.toml that we maintain). Defaults to ./program_mapping.toml",
         default="program_mapping.toml",
-        required=False,
-    )
-    parser.add_argument(
-        "-o",
-        "--outfile",
-        type=Path,
-        help="Path to the output file (.csv). Optional. By default, the output file will be in the data/ directory and have an informative name with a timestamp.",
-        default=None,
         required=False,
     )
     parser.add_argument(
