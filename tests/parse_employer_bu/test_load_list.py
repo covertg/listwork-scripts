@@ -121,6 +121,46 @@ def test_load_list_sample_fixture(sample_xlsx_path):
     assert df["ZIP"].iloc[0] == "03755"
 
 
+def test_load_list_multiple_sheets_warns(tmp_path, capsys):
+    # pd.read_excel silently reads only the first sheet. A BU list should be a
+    # single sheet; if it isn't, say so rather than quietly dropping data.
+    p = tmp_path / "BU 2024.09.15.xlsx"
+    with pd.ExcelWriter(p, engine="openpyxl") as writer:
+        pd.DataFrame({"NAME": ["Smith, John"]}).to_excel(
+            writer, index=False, sheet_name="First"
+        )
+        pd.DataFrame({"NAME": ["Doe, Jane"]}).to_excel(
+            writer, index=False, sheet_name="Second"
+        )
+    df = load_list(p)
+    out = capsys.readouterr().out
+    assert "WARNING" in out
+    assert "2 sheets" in out
+    assert len(df) == 1  # still the first sheet only
+
+
+def test_load_list_single_sheet_does_not_warn(tmp_path, capsys):
+    p = _write_xlsx(
+        tmp_path / "BU 2024.09.15.xlsx",
+        pd.DataFrame({"NAME": ["Smith, John"]}),
+    )
+    load_list(p)
+    assert "WARNING" not in capsys.readouterr().out
+
+
+def test_load_list_empty_string_error_names_the_cell(tmp_path, capsys):
+    p = _write_xlsx(
+        tmp_path / "BU 2024.09.15.xlsx",
+        pd.DataFrame({"NAME": ["Smith, John", "Doe, Jane"], "PROGRAM": ["Biology", " "]}),
+    )
+    with pytest.raises(RuntimeError):
+        load_list(p)
+    out = capsys.readouterr().out
+    assert "PROGRAM" in out
+    # Second data row = Excel row 3 (header is row 1).
+    assert "[3]" in out
+
+
 def test_load_list_does_not_mutate_file(tmp_path):
     p = _write_xlsx(
         tmp_path / "BU 2024.09.15.xlsx",

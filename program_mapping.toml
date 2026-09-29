@@ -16,6 +16,7 @@
 
 "PHYS PHD" = ["PHYS", "PhD"]
 "GRPHYSPHD" = ["PHYS", "PhD"]
+"GRPHYSMS" = ["PHYS", "MS"]     # New as of 26X (2026.07.28)
 
 "QBS PHD" = ["QBS", "PhD"]
 "GRQBSPHD" = ["QBS", "PhD"]
@@ -25,11 +26,17 @@
 "GREEESPHD" = ["EEES", "PhD"]
 "GREEESMS" = ["EEES", "MS"]
 
-# Earth sciences
-"GREARSMS" = ["EARS", "MS"]
-"EARS MS" = ["EARS", "MS"]
-"EARS PHD" = ["EARS", "PhD"]
-"GREARSPHD" = ["EARS", "PhD"]
+# Earth sciences.
+# Dartmouth renamed the Department of Earth Sciences (EARS) to the Department of
+# Earth and Planetary Sciences (EAPS) in May 2026, and the GREARS* codes were
+# replaced by GREAPS* codes as of the 26X list.
+# https://fas.dartmouth.edu/news/2026/05/new-name-earth-sciences
+"GREAPSMS" = ["EAPS", "MS"]     # New as of 26X (2026.07.28)
+"GREAPSPHD" = ["EAPS", "PhD"]   # New as of 26X (2026.07.28)
+"GREARSMS" = ["EAPS", "MS"]     # Pre-2026 names for the same department
+"EARS MS" = ["EAPS", "MS"]
+"EARS PHD" = ["EAPS", "PhD"]
+"GREARSPHD" = ["EAPS", "PhD"]
 
 # Humanities
 "GRSOPRMFA" = ["MUS", "MFA"]
@@ -53,7 +60,7 @@
 "ENGS MS" = ["ENGS", "MS"]
 "ENGS PHD" = ["ENGS", "PhD"]
 "THENGPHD" = ["ENGS", "PhD"]
-"BE" = ["ENGS", "BE"]  # Bachelor of engineering, ABET-accredited
+"BE" = ["ENGS", "BE"]       # Bachelor of engineering, ABET-accredited
 
 # Biology
 "MCB PHD" = ["MCB", "PhD"]
@@ -74,6 +81,7 @@
 # Neuro/Psych
 "PBS PHD" = ["PBS", "PhD"]
 "GRPBSPHD" = ["PBS", "PhD"]
+"GRPBSMS" = ["PBS", "MS"]        # New as of 26X (2026.07.28)
 "COGN PHD" = ["COGN", "PhD"]
 "GRCOGNPHD" = ["COGN", "PhD"]
 "IND PHD" = ["IND", "PhD"]
@@ -85,16 +93,20 @@
 "ECPHD" = ["PH", "PhD"]             # Public Health, once upon a time was "HPCP"; I don't actually know what the "EC" stands for (SP 26)
 "ECMPH" = ["PH", "MPH"]             # Master of Public Health
 "PHPHR" = ["PH", "MPH"]             # Master of Public Health (I believe this to be the same as above; OLR confirmed it to be the residental MPH in SP 26)
-"ECMPH HYBRID" = ["PH", "MPH HYBRID"] # same as above but remote/hybrid
+"ECMPH HYBRID" = ["PH", "MPH HYBRID"] # same as above, but remote/hybrid
+"PHPHH" = ["PH", "MPH HYBRID"]      # New as of 26X (2026.07.28). Reading the trailing letter of PHPH_ as R=residential / H=hybrid, matching PHPHR above
 "GREPIMS" = ["EPI", "MS"]           # Epidemiology
 "HEHDS" = ["HDS", "MS"]             # Health Data Science
 "GRHDSMS" = ["HDS", "MS"]
 "HEHCR" = ["HCR", "MS"]             # Health Care Research
 
 # Geisel medical
+# Note that the few MD/PhD's are lumped under the med school, but their jurisdiction
+# may more accurately be a different location (e.g. MCB, Thayer, etc.)
 "MD" = ["MED", "MD"]
 "Medicine" = ["MED", "MD"]
 "GR-MD/PHD" = ["MED", "MD/PhD"]
+"TH-MD/PHD" = ["MED", "MD/PhD"]     # New as of 26X (2026.07.28)
 
 # Joint Geisel/Tuck
 "DM-MD/MBA" = ["MED", "MD/MBA"]

@@ -1,12 +1,4 @@
-"""Tests for `parse_employer_bu.parse_fullnames`.
-
-Some tests in this module are marked `xfail(strict=True)` because they codify
-intended behavior for a known parsing bug in the current implementation: any
-token ending in `.` is treated as a middle initial, which misclassifies
-suffixes like "Jr." and "Sr.". When the bug is fixed, these tests should flip
-to passing — at which point the strict-xfail will fail loudly and prompt
-removal of the marker.
-"""
+"""Tests for `parse_employer_bu.parse_fullnames`."""
 
 import pandas as pd
 import pytest
@@ -60,29 +52,33 @@ def test_parse_fullnames_suffix_iii():
     assert _parse_single("Smith, John III") == ("Smith", "John III", "")
 
 
-# ---------- Suffix-handling tests (currently buggy) ----------
+# ---------- Suffix handling ----------
+
+# A middle name is recognised only when it is a single letter followed by a
+# period, which is the only form that has ever appeared in a real BU list.
+# Anything else — including suffixes like "Jr." — stays in the First column,
+# matching how "III" is handled above.
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "Known bug: tokens ending in '.' are treated as middle initial, so 'Jr.' "
-        "is misclassified. Will pass once parse_fullnames is taught about suffixes."
-    ),
-)
 def test_parse_fullnames_suffix_jr():
     assert _parse_single("Smith, John Jr.") == ("Smith", "John Jr.", "")
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "Known bug: tokens ending in '.' are treated as middle initial, so 'Sr.' "
-        "is misclassified. Will pass once parse_fullnames is taught about suffixes."
-    ),
-)
 def test_parse_fullnames_suffix_sr():
     assert _parse_single("Smith, John Sr.") == ("Smith", "John Sr.", "")
+
+
+def test_parse_fullnames_suffix_jr_with_middle_initial():
+    assert _parse_single("Smith, John A. Jr.") == ("Smith", "John A. Jr.", "")
+
+
+def test_parse_fullnames_multi_letter_dotted_token_is_not_middle():
+    # e.g. an abbreviated first name. Not a single initial, so not a middle name.
+    assert _parse_single("Smith, John Wm.") == ("Smith", "John Wm.", "")
+
+
+def test_parse_fullnames_accented_middle_initial():
+    assert _parse_single("García, María Á.") == ("García", "María", "Á.")
 
 
 # ---------- Malformed input ----------

@@ -81,12 +81,10 @@ def test_make_address_only_line1():
 
 
 def test_make_address_only_line1_with_nan_city_state_zip():
-    # Edge case documenting current behavior: NaN is truthy in Python, so the
-    # post-comma branch IS entered when any of town/st/zip are NaN, which
-    # yields a trailing ", " after str_combine filters out the NaNs. In
-    # practice this case is unreachable because load_list raises on empty
-    # strings and leaves NaN only in ADDRESS_LINE2, but pinning the behavior
-    # here prevents accidental drift.
+    # Regression guard. NaN is truthy in python, so an earlier version of
+    # make_address_combined entered the post-comma branch whenever any of
+    # town/st/zip was NaN and left a trailing ", " behind. The post-comma part
+    # is now tested via str_combine's output instead of the raw values.
     result = _combine_one(
         {
             "ADDRESS_LINE1": "123 Fake Main St",
@@ -96,7 +94,56 @@ def test_make_address_only_line1_with_nan_city_state_zip():
             "ZIP": np.nan,
         }
     )
-    assert result == "123 Fake Main St, "
+    assert result == "123 Fake Main St"
+
+
+def test_make_address_partial_city_state_zip():
+    # A row can legitimately have a city but no state/zip (some international
+    # addresses look like this). We should still get one comma, no dangling
+    # separator.
+    assert (
+        _combine_one(
+            {
+                "ADDRESS_LINE1": "123 Fake Main St",
+                "ADDRESS_LINE2": np.nan,
+                "TOWN/CITY": "Shenzhen",
+                "ST": np.nan,
+                "ZIP": np.nan,
+            }
+        )
+        == "123 Fake Main St, Shenzhen"
+    )
+
+
+def test_make_address_no_street_but_city_state_zip():
+    # No street lines at all: no leading comma should be produced.
+    assert (
+        _combine_one(
+            {
+                "ADDRESS_LINE1": np.nan,
+                "ADDRESS_LINE2": np.nan,
+                "TOWN/CITY": "Hanover",
+                "ST": "NH",
+                "ZIP": "03755",
+            }
+        )
+        == "Hanover NH 03755"
+    )
+
+
+def test_make_address_all_missing():
+    assert (
+        _combine_one(
+            {
+                "ADDRESS_LINE1": np.nan,
+                "ADDRESS_LINE2": np.nan,
+                "TOWN/CITY": np.nan,
+                "ST": np.nan,
+                "ZIP": np.nan,
+            }
+        )
+        == ""
+    )
 
 
 def test_make_address_trailing_commas_in_source():
