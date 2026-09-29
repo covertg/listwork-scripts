@@ -125,30 +125,70 @@ pytest tests/
 
 ## `check_skipped_imports.py`
 
-Once we've processed a BU list, we first update only the workers that already
-exist in Broadstripes. Broadstripes gives us a list of "skips" which should
-represent the workers that are new to us. However, sometimes a worker just
-changes their name or email. To avoid these false duplicates, we compare the
-"skips" to all of the entries in our Broadstripes database and search for names
-that approximately match.
+After the first Broadstripes import (which matches workers by email), Broadstripes
+gives us a CSV of "skips": the rows it couldn't match. Most are new workers, but
+some are existing workers whose email changed, often along with their name. This
+script compares every skip against a full export of Broadstripes and lists
+possible matches, so we can fix those workers' emails instead of creating
+duplicates.
 
-This task will never be done perfectly, and that's fine. But if we wanted to
-improve it some day, we could also try matching entries based on other
-information, e.g. phone number and address seem promising.
+A Broadstripes record counts as a possible match if it has:
 
-This script has no tests yet. It'd be good to change that sometime.
+- **the same name** or **the same phone number** (a *strong* match: check these
+  carefully), or
+- **a similar name** based on fuzzy name matching (a *weaker* match: most of these are just different people
+  who share a first name). `--threshold` (default 0.75) sets how similar.
 
-Usage info:
+### Example usage
+
+The defaults expect the skips CSV straight from Broadstripes (its columns come
+from `parse_employer_bu.py`) and a full export using the "Contact and Degree
+Info" layout, so normally you just pass the two files:
+
 ```bash
-python check_skipped_imports.py --help
+python check_skipped_imports.py \
+    -s './data/2026-04-29 data-import-SKIPS-0d7dc05d-34ec-4a77-a28a-91f374f3d298.csv' \
+    -b './data/2026.09.29 Contact and Degree Info.csv'
 ```
 
-```bash
-# output
-# TODO
+Output (names are made up):
+
+```
+Loaded skips file 'data/2026-04-29 data-import-SKIPS-....csv' (65 rows).
+Loaded Broadstripes file 'data/2026.09.29 Contact and Degree Info.csv' (2587 rows).
+
+Compared 65 skipped rows against 2587 Broadstripes records.
+  44 skips have no possible match (likely new workers).
+  21 skips have possible matches:
+    2 strong (same name or same phone number). Check these carefully.
+    19 weaker (similar name only). Most of these are different people.
+
+=== Strong possible matches ===
+
+                                  Name          Phone                         Email Employer Broadstripes ID Name similarity
+Skip (CSV row 42)    Rivera, Jordan A. (603) 555-0142 Jordan.A.Rivera.TH@dartmouth.edu     ENGS
+Match: same phone     Chen, Jordan A.     6035550142  Jordan.A.Chen.TH@dartmouth.edu     ENGS         ABC-123            0.62
+...
+
+=== Weaker possible matches (similar name only) ===
+...
+
+Wrote these possible matches to 'data/2026-04-29 data-import-SKIPS-... - possible duplicates.csv'
 ```
 
-Example usage (outdated):
+The same tables are saved to a CSV next to the skips file (or pass `-o`), which
+is easier to read in a spreadsheet. "CSV row" is the row number in the skips file
+as a spreadsheet shows it.
+
+If Broadstripes or Dartmouth renames a column, the script stops and lists the
+file's actual columns. Use the `--*_name_cols` and `--*_info_cols` options to
+point it at the new names; `python check_skipped_imports.py --help` documents
+every option.
+
+### Tests
+
 ```bash
-# TODO
+pytest tests/check_skipped_imports/
 ```
+
+If we wanted to improve the matching further, address is another promising signal (the Broadstripes export would need to include it).

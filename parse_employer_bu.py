@@ -83,6 +83,10 @@ def load_list(infile: Path) -> pd.DataFrame:
     # Load file
     # It's important to use dtype=object or str, otherwise zip code may be cast to float
     df = pd.read_excel(infile, dtype=str)
+    # Index rows by their row number in Excel (the header is row 1, so data
+    # starts at row 2). Every row number we print, including the index of any
+    # dataframe we print, can then be looked up directly in the source file.
+    df.index = pd.RangeIndex(start=2, stop=len(df) + 2, name="Excel row")
     print(f"Loaded file '{infile}'.")
     print(f"n. rows:\t {df.shape[0]}")
     print(f"Columns:\t {df.columns.tolist()}")
@@ -100,7 +104,7 @@ def load_list(infile: Path) -> pd.DataFrame:
         )
         print("Row numbers below are as shown in Excel (header is row 1):")
         for col in blanks.columns[blanks.any(axis=0)]:
-            rows = [i + 2 for i in blanks.index[blanks[col]]]
+            rows = blanks.index[blanks[col]].tolist()
             print(f"  column '{col}': row(s) {rows}")
         raise RuntimeError(
             "Input data has empty (non-nan) cells, please check data quality"
@@ -180,10 +184,10 @@ def convert_program_mapping(
             "Error: This file has new entries in program/field of study that we haven't seen before. This often happens with each new BU list. Please interpret the new entries and add them to the program mapping .toml file. Unrecognized entries:"
         )
         # Show how many workers each unknown code covers and where they are in
-        # the file (Excel row numbers, header being row 1). Looking those workers
-        # up is usually what lets you figure out what a new code means.
+        # the file (Excel row numbers, via the index set in load_list). Looking
+        # those workers up is usually what lets you figure out what a new code means.
         for code in sorted(new_programs):
-            rows = [i + 2 for i in df.index[df[program_col] == code]]
+            rows = df.index[df[program_col] == code].tolist()
             print(f"  '{code}' — {len(rows)} worker(s), Excel row(s) {rows}")
         raise RuntimeError("Unrecognized program/field of study data")
     # If everything looks good, then map program/field of study to new Employer and Degree columns
@@ -326,14 +330,14 @@ def check_data_quality(
     eyeball the rows, fix them in the xlsx as needed, and re-run if needed. Returns the
     number of rows flagged.
 
-    Row numbers are printed as they appear in Excel (header is row 1) so that
-    they can be looked up directly in the source file.
+    Row numbers are printed from df's index, which load_list sets to the row
+    numbers in Excel so that they can be looked up directly in the source file.
     """
     print("\nChecking data quality...")
     flagged: set[int] = set()
 
     def _excel_rows(index) -> list[int]:
-        return [i + 2 for i in index]
+        return index.tolist()
 
     # 1. Rows that share a name. In the 26X list, one worker appeared twice,
     #    with the second copy's address columns shifted. Importing both makes a
@@ -343,8 +347,9 @@ def check_data_quality(
         flagged.update(dupes.index)
         _warn(
             f"{len(dupes)} row(s) share a name with another row. These are usually "
-            "an export glitch (the same worker listed twice), but can occasionally "
-            "be two real people. Excel row(s): "
+            "a data issue(the same worker listed twice), but can occasionally "
+            "be two real people. It's best to remove duplicates from the xlsx and then "
+            "run again. Excel row(s): "
             f"{_excel_rows(dupes.index)}"
         )
         print(dupes[list(name_cols)].to_string())
@@ -356,12 +361,8 @@ def check_data_quality(
     if not shifted.empty:
         flagged.update(shifted.index)
         _warn(
-            f"{len(shifted)} row(s) have an empty city but a non-empty state. This is "
-            "the signature of address columns being shifted one to the right in "
-            "Dartmouth's export: the city sits in the state column, the state in "
-            "the zip column, and the ZIP CODE lands in the phone column. Check the "
-            "phone numbers for these rows too — Broadstripes will happily import a "
-            "zip code as someone's phone number. Excel row(s): "
+            f"{len(shifted)} row(s) have an empty city but a non-empty state. Check to "
+            "make sure that columns have not been shifted. Excel row(s): "
             f"{_excel_rows(shifted.index)}"
         )
         print(shifted[[*name_cols, cityc, statec, zipc]].to_string())
@@ -393,8 +394,8 @@ def check_data_quality(
         flagged.update(odd)
         _warn(
             f"{len(odd)} row(s) have a state or zip that doesn't look like a US "
-            "state/zip. International addresses do this legitimately — just "
-            f"eyeball them. Excel row(s): {_excel_rows(odd)}"
+            "state/zip. Not an issue if this is an international address. Excel row(s):"
+            f"{_excel_rows(odd)}"
         )
         print(df.loc[odd, [*name_cols, cityc, statec, zipc]].to_string())
 
@@ -458,15 +459,13 @@ def parse_dartmouth_bu(
 
         # Flag suspicious rows (advisory only/never stops the run)
         _, _, cityc, statec, zipc = address_cols
-        n_flagged = check_data_quality(
+        _ = check_data_quality(
             df, name_cols=name_cols, cityc=cityc, statec=statec, zipc=zipc
         )
 
         print(
             "\nFinished parsing this employer BU list. Please check the output for errors before using it."
         )
-        if n_flagged:
-            print(f"Remember to look at the {n_flagged} flagged row(s) above.")
         if write:
             if not outfile:
                 fname = f"{list_name} made {datetime.datetime.now().strftime('%Y.%m.%d_%H.%M.%S')}.csv"
